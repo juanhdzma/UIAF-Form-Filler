@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
 
 class SeleniumDriver(webdriver.Chrome):
@@ -21,6 +22,11 @@ class SeleniumDriver(webdriver.Chrome):
                 "No se pudo crear el driver de selenium, verifique la carpeta drivers"
             )
 
-    def wait_for_url_change(self, old_url):
-        """Espera hasta que la URL de la página cambie."""
-        WebDriverWait(self, 60).until(EC.url_changes(old_url))
+    def wait_for_element(self, css_selector, timeout=60):
+        """Espera hasta que un elemento específico aparezca en la página."""
+        try:
+            WebDriverWait(self, timeout).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, css_selector))
+            )
+        except Exception:
+            raise CustomException(f"La pagina parece no haber terminado de cargar")
