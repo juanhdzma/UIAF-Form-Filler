@@ -2,3 +2,5 @@
 .ENV
 venv/
 __pycache__/
+*.xlsx
+!src/templates/*.xlsx

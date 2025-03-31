@@ -1,0 +1,88 @@
+sheet basica "Comite"
+
+
+Cambiar perfil
+Cualquier cosa en el nombre FIDU: Decision comite (I)
+Cualquier cosa en el nombre COMISIONISTA: Decision comite (I)
+Else: normal
+
+ROS -> ROS
+
+ROS -> Coincidencia Noticia
+ROS REPUTACIONAL: Decision comite (I)
+
+ROS -> Operacion intentada
+ROS OPERACION INTENTADA: Decision comite (I)
+
+Creacion ------------
+
+Boton Crear
+
+Boton Reporte positivo
+
+Llenar formulario ------ informacion general del reporte 
+Nombre de reporte: Consecutivo UIAF (A)
+Clase del reporte: "Reporte inicial" *SIEMPRE*
+
+
+iv. relacionados Fila 71 *SIEMPRE*
+Documento (F)
+C, e, p, t, NAN "natural"
+N, NAJ "juridica"
+
+importante, antes de llenar todo verificar tipo de cliente (J10), porque tengo que llenarlos tambien en el formulario de juridico o natural dependiendo del caso, como si fuese un valor mas de la lista
+Rol siempre es "CLIENTE" para ese caso
+
+
+Llenar formulario ------ Persona juridica
+
+Entrar al caso de cada Persona
+Si es NAJ entonces no es NIT sino sin razon en colombia
+plantilla: info
+TIPO: tipo de documento (e)
+Documento: Documento (f) si es NA entonces serial
+Razon social: Nombre (d)
+Nombres RL: NA *SIEMPRE*
+Primer apellido RL: NA *SIEMPRE*
+Segundo apellido RL: NA *SIEMPRE*
+Tipo Doc RL: Cedula de ciudadania *SIEMPRE*
+Identificacion RL: 1, 2, 3, 4 (serial), dependiendo de la longitud del listado, no iguales para reportes diferentes
+Rol en empresa: Relacion (G)
+PEP: NO *SIEMPRE* 
+
+Choose file, "Formato Personas Juridicas" llenar esa plantilla
+Boton Cargar plantilla despues de subirlo para aceptar los cambios, (verificar que ya no diga cargando)
+
+
+
+Llenar formulario ------ Persona natural
+
+Lo mismo que en juridica, lo unico es que es complicado diferenciar entre nombres y apellidos
+Choose file, "Formato Personas Naturales" llenar esa plantilla
+Boton Cargar plantilla despues de subirlo para aceptar los cambios, (verificar que ya no diga cargando)
+
+
+Llenar formulario ------ Detalle
+Periodo de analisis desde: (F46)
+Periodo de analisis hasta: (H46)
+Descripcion: Pegar todo desde B10-N.. (hasta que aparece 5.Conclusiones del comite)
+Tematica: vii.tematica asociada a LA/FT (seleccionar el texto y ponerlo en el desplegable)
+señales de alerta: agregar una por una hasta la longitud, despues de agregar una presionar el boton de +, ii. Razones del reporte
+valor de transaccion: (E45), no acepta decimales, redondear
+moneda: pesos *SIEMPRE*
+Documentos de soporte: marcar
+    En seleccion: Soporte
+    seleccionar el archivo
+    Dar en importar
+
+
+Luego de todo boton de arriba (enviar)
+
+Luego me redirige y pongo en descargar pdf, ese pdf se guarda
+
+CAMBIAR FORMATO PARA NOMENCLATURA (NAN, NAJ)
+CAMBIAR NOMBRE DE SHEET POR NUMERO DE caso
+
+
+
+
