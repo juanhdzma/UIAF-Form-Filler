@@ -14,52 +14,52 @@ ROS REPUTACIONAL: Decision comite (I)
 ROS -> Operacion intentada
 ROS OPERACION INTENTADA: Decision comite (I)
 
-Creacion ------------
+    Creacion ------------
 
-Boton Crear
+    Boton Crear
 
-Boton Reporte positivo
+    Boton Reporte positivo
 
-Llenar formulario ------ informacion general del reporte 
-Nombre de reporte: Consecutivo UIAF (A)
-Clase del reporte: "Reporte inicial" *SIEMPRE*
-
-
-iv. relacionados Fila 71 *SIEMPRE*
-Documento (F)
-C, e, p, t, NAN "natural"
-N, NAJ "juridica"
-
-importante, antes de llenar todo verificar tipo de cliente (J10), porque tengo que llenarlos tambien en el formulario de juridico o natural dependiendo del caso, como si fuese un valor mas de la lista
-Rol siempre es "CLIENTE" para ese caso
+    Llenar formulario ------ informacion general del reporte 
+    Nombre de reporte: Consecutivo UIAF (A)
+    Clase del reporte: "Reporte inicial" *SIEMPRE*
 
 
-Llenar formulario ------ Persona juridica
+    iv. relacionados Fila 71 *SIEMPRE*
+    Documento (F)
+    C, e, p, t, NAN "natural"
+    N, NAJ "juridica"
 
-Entrar al caso de cada Persona
-Si es NAJ entonces no es NIT sino sin razon en colombia
-plantilla: info
-TIPO: tipo de documento (e)
-Documento: Documento (f) si es NA entonces serial
-Razon social: Nombre (d)
-Nombres RL: NA *SIEMPRE*
-Primer apellido RL: NA *SIEMPRE*
-Segundo apellido RL: NA *SIEMPRE*
-Tipo Doc RL: Cedula de ciudadania *SIEMPRE*
-Identificacion RL: 1, 2, 3, 4 (serial), dependiendo de la longitud del listado, no iguales para reportes diferentes
-Rol en empresa: Relacion (G)
-PEP: NO *SIEMPRE* 
+    importante, antes de llenar todo verificar tipo de cliente (J10), porque tengo que llenarlos tambien en el formulario de juridico o natural dependiendo del caso, como si fuese un valor mas de la lista
+    Rol siempre es "CLIENTE" para ese caso
+
+
+    Llenar formulario ------ Persona juridica
+
+    Entrar al caso de cada Persona
+    Si es NAJ entonces no es NIT sino sin razon en colombia
+    plantilla: info
+    TIPO: tipo de documento (e)
+    Documento: Documento (f) si es NA entonces serial
+    Razon social: Nombre (d)
+    Nombres RL: NA *SIEMPRE*
+    Primer apellido RL: NA *SIEMPRE*
+    Segundo apellido RL: NA *SIEMPRE*
+    Tipo Doc RL: Cedula de ciudadania *SIEMPRE*
+    Identificacion RL: 1, 2, 3, 4 (serial), dependiendo de la longitud del listado, no iguales para reportes diferentes
+    Rol en empresa: Relacion (G)
+    PEP: NO *SIEMPRE* 
 
 Choose file, "Formato Personas Juridicas" llenar esa plantilla
 Boton Cargar plantilla despues de subirlo para aceptar los cambios, (verificar que ya no diga cargando)
 
 
 
-Llenar formulario ------ Persona natural
+    Llenar formulario ------ Persona natural
 
-Lo mismo que en juridica, lo unico es que es complicado diferenciar entre nombres y apellidos
-Choose file, "Formato Personas Naturales" llenar esa plantilla
-Boton Cargar plantilla despues de subirlo para aceptar los cambios, (verificar que ya no diga cargando)
+    Lo mismo que en juridica, lo unico es que es complicado diferenciar entre nombres y apellidos
+    Choose file, "Formato Personas Naturales" llenar esa plantilla
+    Boton Cargar plantilla despues de subirlo para aceptar los cambios, (verificar que ya no diga cargando)
 
 
 Llenar formulario ------ Detalle
@@ -73,7 +73,7 @@ moneda: pesos *SIEMPRE*
 Documentos de soporte: marcar
     En seleccion: Soporte
     seleccionar el archivo
-    Dar en importar
+    Dar en importarq
 
 
 Luego de todo boton de arriba (enviar)
