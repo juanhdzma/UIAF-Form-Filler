@@ -11,7 +11,7 @@ ROS -> ROS
 ROS -> Coincidencia Noticia
 ROS REPUTACIONAL: Decision comite (I)
 
-ROS -> Operacion intentada
+ROS -> Operacion intentadas
 ROS OPERACION INTENTADA: Decision comite (I)
 
     Creacion ------------

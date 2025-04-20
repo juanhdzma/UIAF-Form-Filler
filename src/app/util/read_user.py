@@ -1,107 +1,97 @@
 from pandas import read_excel, DataFrame, concat
 from app.util.convert import format_date
-from app.util.convert import obtener_motivo_mas_parecido
+from app.util.convert import get_closest_reason_match
 
 # Constantes de etiquetas utilizadas en la hoja de Excel
-CELDA_MOTIVO = "vii. Temática Asociada a LA/FT"
-CELDA_CASE_ID = "No. Caso"
-CELDA_TIPO_DOCUMENTO = "J10"
-CELDA_DOCUMENTO = "L10"
-CELDA_VALOR = "Valor Reporte"
-COLUMNA_FECHA_INICIO = "F"
-COLUMNA_FECHA_FIN = "H"
-CONCLUSIONES = "5. Conclusiones del Comité"
-RAZONES_FIN = "iii. Movimientos a destacar"
-RAZONES_INICIO = "ii. Razones del reporte: Inusualidades encontradas"
-RELACIONADOS_FIN = "v. Explicación de la operación "
-RELACIONADOS_INICIO = "iv. Relacionados"
+CELL_REASON = "vii. Temática Asociada a LA/FT"
+CELL_CASE_ID = "No. Caso"
+CELL_DOCUMENT_TYPE = "J10"
+CELL_DOCUMENT = "L10"
+CELL_AMOUNT = "Valor Reporte"
+COLUMN_START_DATE = "F"
+COLUMN_END_DATE = "H"
+CONCLUSIONS = "5. Conclusiones del Comité"
+REASONS_END = "iii. Movimientos a destacar"
+REASONS_START = "ii. Razones del reporte: Inusualidades encontradas"
+RELATED_END = "v. Explicación de la operación "
+RELATED_START = "iv. Relacionados"
 
 # Direcciones posibles para obtener_valor_celda
-DIRECCION_DERECHA = "R"
-DIRECCION_DOS_DERECHA = "RR"
-DIRECCION_ABAJO = "D"
+DIRECTION_RIGHT = "R"
+DIRECTION_TWO_RIGHT = "RR"
+DIRECTION_DOWN = "D"
 
 
-def read_user_data(cached_file, nombre_reportado):
-    excel = read_excel(cached_file, sheet_name=nombre_reportado, header=None)
+def read_user_data(cached_file, reported_name):
+    excel = read_excel(cached_file, sheet_name=reported_name, header=None)
 
-    texto_detalles = extraer_texto_detalles_usuario(
-        excel, buscar_fila_por_etiqueta(excel, CONCLUSIONES, "B")
-    )
-
-    relacionados = extraer_relacionados(excel)
-    tipo_documento = obtener_valor_celda(excel, CELDA_TIPO_DOCUMENTO)
-    documento = obtener_valor_celda(excel, CELDA_DOCUMENTO)
-    relacionado_reporte = {
-        "Nombre": nombre_reportado,
-        "Tipo de documento": tipo_documento,
-        "Documento ": documento,
-        "Relación": "CLIENTE",
+    details_text = extract_user_details_text(excel, find_row_by_label(excel, CONCLUSIONS, "B"))
+    related = extract_related(excel)
+    document_type = get_cell_value(excel, CELL_DOCUMENT_TYPE)
+    document = get_cell_value(excel, CELL_DOCUMENT)
+    related_report = {
+        "Name": reported_name,
+        "Document type": document_type,
+        "Document ": document,
+        "Relation": "CLIENTE",
     }
+    related = concat([related, DataFrame([related_report])], ignore_index=True)
 
-    relacionados = concat(
-        [relacionados, DataFrame([relacionado_reporte])], ignore_index=True
-    )
-
-    case_id = relacionados["No. Caso"][0]
-
-    razones = extraer_razones(excel)
-    motivo = extraer_valor(excel, CELDA_MOTIVO, "C", DIRECCION_ABAJO)
-    valor = extraer_valor(excel, CELDA_VALOR, "C", DIRECCION_DOS_DERECHA)
-    fechas = extraer_fechas(excel)
-
+    reasons = extract_reasons(excel)
+    reason = extract_value(excel, CELL_REASON, "C", DIRECTION_DOWN)
+    amount = extract_value(excel, CELL_AMOUNT, "C", DIRECTION_TWO_RIGHT)
+    dates = extract_dates(excel)
     return {
-        "case_id": case_id,
-        "texto_detalles": texto_detalles,
-        "relacionados": relacionados,
-        "motivo": obtener_motivo_mas_parecido(motivo),
-        "valor": round(valor),
-        "razones": razones,
-        "fecha_inicio": fechas["fecha_inicio"],
-        "fecha_fin": fechas["fecha_fin"],
+        "description": details_text,
+        "related": related,
+        "operation_reason": get_closest_reason_match(reason),
+        "transaction_amount": round(amount),
+        "alert_reasons": reasons,
+        "start_date": dates["start_date"],
+        "end_date": dates["end_date"],
     }
 
 
-def buscar_fila_por_etiqueta(excel, frase, columna_letra):
-    col_idx = columna_excel_a_indice(columna_letra)
-    matches = excel[excel[col_idx] == frase]
+def find_row_by_label(excel, phrase, column_letter):
+    col_idx = excel_column_to_index(column_letter)
+    matches = excel[excel[col_idx] == phrase]
     return matches.index[0] + 1 if not matches.empty else None
 
 
-def extraer_texto_detalles_usuario(excel, fila_final):
-    rango = excel.iloc[8 : fila_final - 1, 1:14].fillna("")
-    return "\n".join("\t".join(map(str, fila)) for fila in rango.values)
+def extract_user_details_text(excel, final_row):
+    range_data = excel.iloc[8 : final_row - 1, 1:14].fillna("")
+    return "\n".join("\t".join(map(str, row)) for row in range_data.values)
 
 
-def extraer_tabla(excel, inicio, final, title=False):
-    data = excel.iloc[inicio:final, 2:13].fillna("")
+def extract_table(excel, start, end, title=False):
+    data = excel.iloc[start:end, 2:13].fillna("")
     data = DataFrame(data)
     if title:
-        encabezados = excel.iloc[inicio, 2:13].tolist()
+        headers = excel.iloc[start, 2:13].tolist()
         data = data.iloc[1:]
-        data.columns = encabezados
+        data.columns = headers
     return data.reset_index(drop=True)
 
 
-def obtener_valor_celda(excel, celda, direccion=DIRECCION_DERECHA):
-    col_letras = "".join(filter(str.isalpha, celda)).upper()
-    fila = int("".join(filter(str.isdigit, celda))) - 1
-    col = columna_excel_a_indice(col_letras)
+def get_cell_value(excel, cell, direction=DIRECTION_RIGHT):
+    col_letters = "".join(filter(str.isalpha, cell)).upper()
+    row = int("".join(filter(str.isdigit, cell))) - 1
+    col = excel_column_to_index(col_letters)
 
     try:
-        if direccion == DIRECCION_DERECHA:
-            return excel.iloc[fila, col]
-        elif direccion == DIRECCION_ABAJO:
-            return excel.iloc[fila + 1, col]
-        elif direccion == DIRECCION_DOS_DERECHA:
-            return excel.iloc[fila, col + 2]
+        if direction == DIRECTION_RIGHT:
+            return excel.iloc[row, col]
+        elif direction == DIRECTION_DOWN:
+            return excel.iloc[row + 1, col]
+        elif direction == DIRECTION_TWO_RIGHT:
+            return excel.iloc[row, col + 2]
         else:
-            raise ValueError(f"Dirección inválida: {direccion}")
+            raise ValueError(f"Invalid direction: {direction}")
     except IndexError:
         return None
 
 
-def columna_excel_a_indice(col_letters):
+def excel_column_to_index(col_letters):
     col_letters = col_letters.upper()
     index = 0
     for char in col_letters:
@@ -109,36 +99,34 @@ def columna_excel_a_indice(col_letters):
     return index - 1
 
 
-def extraer_relacionados(excel):
-    inicio = buscar_fila_por_etiqueta(excel, RELACIONADOS_INICIO, "C")
-    fin = buscar_fila_por_etiqueta(excel, RELACIONADOS_FIN, "C")
-    return extraer_tabla(excel, inicio + 1, fin - 2, True)
+def extract_related(excel):
+    start = find_row_by_label(excel, RELATED_START, "C")
+    end = find_row_by_label(excel, RELATED_END, "C")
+    return extract_table(excel, start + 1, end - 2, True)
 
 
-def extraer_razones(excel):
-    inicio = buscar_fila_por_etiqueta(excel, RAZONES_INICIO, "C")
-    fin = buscar_fila_por_etiqueta(excel, RAZONES_FIN, "C")
-    return extraer_tabla(excel, inicio, fin - 2)[2].to_list()
+def extract_reasons(excel):
+    start = find_row_by_label(excel, REASONS_START, "C")
+    end = find_row_by_label(excel, REASONS_END, "C")
+    return extract_table(excel, start, end - 2)[2].to_list()
 
 
-def extraer_valor(excel, celda, columna, direccion=None):
-    index = buscar_fila_por_etiqueta(excel, celda, columna)
+def extract_value(excel, cell, column, direction=None):
+    index = find_row_by_label(excel, cell, column)
     value = None
-    if direccion:
-        value = obtener_valor_celda(excel, f"{columna}{index}", direccion)
+    if direction:
+        value = get_cell_value(excel, f"{column}{index}", direction)
     else:
-        value = obtener_valor_celda(excel, f"{columna}{index}")
+        value = get_cell_value(excel, f"{column}{index}")
     return value
 
 
-def extraer_fechas(excel):
-    fila_periodo = buscar_fila_por_etiqueta(excel, "Período Analizado", "C")
-    celda_fecha_inicio = f"{COLUMNA_FECHA_INICIO}{fila_periodo}"
-    celda_fecha_fin = f"{COLUMNA_FECHA_FIN}{fila_periodo}"
+def extract_dates(excel):
+    period_row = find_row_by_label(excel, "Período Analizado", "C")
+    cell_start_date = f"{COLUMN_START_DATE}{period_row}"
+    cell_end_date = f"{COLUMN_END_DATE}{period_row}"
 
     return {
-        "fecha_inicio": format_date(
-            str(obtener_valor_celda(excel, celda_fecha_inicio))
-        ),
-        "fecha_fin": format_date(str(obtener_valor_celda(excel, celda_fecha_fin))),
+        "start_date": format_date(str(get_cell_value(excel, cell_start_date))),
+        "end_date": format_date(str(get_cell_value(excel, cell_end_date))),
     }

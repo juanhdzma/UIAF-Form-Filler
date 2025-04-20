@@ -1,12 +1,12 @@
 from openpyxl import load_workbook
 
 # Constants
-NATURAL = ["C", "E", "P", "T", "NAN"]
-JURIDICAL = ["N", "NAJ"]
+NATURAL_TYPES = ["C", "E", "P", "T", "NAN"]
+JURIDICAL_TYPES = ["N", "NAJ"]
 
-tipo_map_juridicas = {"N": "NIT", "NAJ": "Sociedad extranjera sin NIT en Colombia"}
+LEGAL_TYPE_MAP = {"N": "NIT", "NAJ": "Sociedad extranjera sin NIT en Colombia"}
 
-tipo_map_naturales = {
+NATURAL_TYPE_MAP = {
     "C": "Cédula de ciudadanía",
     "E": "Cédula de extranjería",
     "P": "Pasaporte",
@@ -22,36 +22,36 @@ def load_templates(tipo):
         return load_workbook("src/templates/Juridicas.xlsx")
 
 
-def create_excel_file(filas, tipo):
+def create_excel_file(rows, tipo):
     excel = load_templates(tipo)
     sheet = excel.active
 
-    for i, fila in enumerate(filas, start=4):
-        for j, value in enumerate(fila, start=1):
+    for i, row in enumerate(rows, start=4):
+        for j, value in enumerate(row, start=1):
             sheet.cell(row=i, column=j, value=value)
 
     excel.save(f"output_files/{tipo}.xlsx")
     excel.close()
 
 
-def procesar_juridicas(df):
-    documento_counter = 0
+def process_legal_entities(df):
+    document_counter = 0
     rl_counter = 0
-    filas = []
+    rows = []
 
     for i, row in df.iterrows():
-        tipo = tipo_map_juridicas.get(str(row["Tipo de documento"]).upper(), "")
+        tipo = LEGAL_TYPE_MAP.get(str(row["Tipo de documento"]).upper(), "")
         documento = str(row["Documento "])
 
         if documento.strip() == "":
-            documento = documento_counter
-            documento_counter += 1
+            documento = document_counter
+            document_counter += 1
 
         rl_counter += 1
         nombre = row["Nombre"]
         relacion = row["Relación"]
 
-        fila = [
+        row_data = [
             tipo,
             documento,
             nombre,
@@ -63,23 +63,23 @@ def procesar_juridicas(df):
             relacion,
             "NO",
         ]
-        filas.append(fila)
+        rows.append(row_data)
 
-    return filas
+    return rows
 
 
-def procesar_naturales(df):
-    documento_counter = 0
-    filas = []
+def process_natural_entities(df):
+    document_counter = 0
+    rows = []
 
-    for i, row in df.iterrows():
+    for _, row in df.iterrows():
         tipo_raw = str(row["Tipo de documento"]).upper()
-        tipo = tipo_map_naturales.get(tipo_raw, "DESCONOCIDO")
+        tipo = NATURAL_TYPE_MAP.get(tipo_raw, "DESCONOCIDO")
 
         documento = str(row["Documento "])
         if documento.strip() == "":
-            documento = documento_counter
-            documento_counter += 1
+            documento = document_counter
+            document_counter += 1
 
         nombre = row["Nombre"]
         relacion = row["Relación"]
@@ -103,7 +103,7 @@ def procesar_naturales(df):
             primer_apellido = ""
             segundo_apellido = ""
 
-        fila = [
+        row_data = [
             tipo,
             documento,
             primer_nombre,
@@ -112,19 +112,19 @@ def procesar_naturales(df):
             relacion,
             "NO",
         ]
-        filas.append(fila)
+        rows.append(row_data)
 
-    return filas
+    return rows
 
 
 def process_relation_df(df, tipo):
     if tipo == "NATURAL":
-        valores = NATURAL
+        valores = NATURAL_TYPES
         df_filtrado = df[df["Tipo de documento"].isin(valores)]
-        filas = procesar_naturales(df_filtrado)
+        rows = process_natural_entities(df_filtrado)
     elif tipo == "JURIDICA":
-        valores = JURIDICAL
+        valores = JURIDICAL_TYPES
         df_filtrado = df[df["Tipo de documento"].isin(valores)]
-        filas = procesar_juridicas(df_filtrado)
+        rows = process_legal_entities(df_filtrado)
 
-    create_excel_file(filas, tipo)
+    create_excel_file(rows, tipo)

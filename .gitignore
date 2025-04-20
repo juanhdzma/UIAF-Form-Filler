@@ -1,6 +1,15 @@
+# MacOS
 .DS_Store
-.ENV
+
+# Entornos virtuales
 venv/
+
+# Configuración y Entornos
+.ENV
+
+# Archivos compilados de Python
 __pycache__/
+
+# Archivos de Excel (excepto plantilla en src/templates)
 *.xlsx
 !src/templates/*.xlsx
