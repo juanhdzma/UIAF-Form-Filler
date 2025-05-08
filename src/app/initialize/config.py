@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 
 
-class EnvLoader:
+class env_loader:
     def __init__(self, env_file=".env"):
         load_dotenv(env_file, override=True)
         self.env_vars = {key: os.getenv(key) for key in os.environ.keys()}

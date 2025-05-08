@@ -7,7 +7,7 @@ from app.util.convert import string_to_matrix
 def perform_login(driver, env):
     open_login_page(driver, env.URL)
     enter_credentials(driver, env.USERNAME, env.PASSWORD)
-    solve_matrix_challenge(driver, env)
+    solve_matrix_challenge(driver, env.MATRIX)
     select_entity(driver, "SCOTIABANK COLPATRIA")
 
 
@@ -22,13 +22,13 @@ def enter_credentials(driver, username, password):
     driver.wait_for_element("#ctl00_ContentPlaceHolder1_labelIdentityFSM")
 
 
-def solve_matrix_challenge(driver, env):
+def solve_matrix_challenge(driver, matrix):
     requested_matrix = driver.find_element(By.CSS_SELECTOR, "#ctl00_ContentPlaceHolder1_labelIdentityFSM").text
     requested_matrix_number, item_matrix = string_to_matrix(requested_matrix)
 
     for index, item in enumerate(item_matrix):
         field_selector = f"#ctl00_ContentPlaceHolder1_tb{item}"
-        value = env.MATRIX[requested_matrix_number[index][1]][requested_matrix_number[index][0]]
+        value = matrix[requested_matrix_number[index][1]][requested_matrix_number[index][0]]
         driver.find_element(By.CSS_SELECTOR, field_selector).send_keys(value)
 
     driver.find_element(By.CSS_SELECTOR, "#ctl00_ContentPlaceHolder1_Button1").send_keys(Keys.ENTER)
